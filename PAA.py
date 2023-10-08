@@ -64,12 +64,14 @@ def main():
         os.remove('resultados.csv')
 
     with open('resultados.csv', 'w', newline='') as csvfile:
-        colunas = ['instancia', 'numero_itens', 'capacidade_mochila', 'solucao_programacao_dinamica', 'solucao_heuristica_gulosa',
-                   'tempo_execucao_programacao_dinamica', 'tempo_execucao_heuristica_gulosa', 'tempo_total_execucao', 
+        colunas = ['instancia', 'numero_itens', 'capacidade_mochila', 'solucao_programacao_dinamica', 
+                   'solucao_heuristica_gulosa', 'diferenca_solucoes', 'tempo_execucao_programacao_dinamica', 
+                   'tempo_execucao_heuristica_gulosa', 'diferenca_tempo_execucao', 'tempo_total_execucao', 
                    'itens_selecionados_programacao_dinamica', 'itens_selecionados_heuristica_gulosa']
         writer = csv.DictWriter(csvfile, fieldnames=colunas, delimiter=';')
         csvfile.write('sep=;\n')
         writer.writeheader()
+        
         for instancia in sorted(os.listdir(diretorio), key=ordenacao_natural):
             with open(os.path.join(diretorio, instancia), 'r') as f:
                 linhas_instancia = f.readlines()
@@ -86,65 +88,58 @@ def main():
                 print(f'Instância: {instancia} | {numero_itens} itens | Mochila com {capacidade_mochila} de capacidade')
 
                 tempo_inicial_programacao_dinamica = time.time()
+
                 solucao_programacao_dinamica, itens_programacao_dinamica = programacao_dinamica(
                     itens, capacidade_mochila)
+                
                 tempo_execucao_programacao_dinamica = time.time() - tempo_inicial_programacao_dinamica
                 tempo_total_programacao_dinamica += tempo_execucao_programacao_dinamica
 
                 print(
-                    f"Solução (Programação Dinâmica): {solucao_programacao_dinamica}")
+                    f"- Solução (Programação Dinâmica): {solucao_programacao_dinamica}")
                 print(
-                    f"Tempo de execução (Programação Dinâmica): {tempo_execucao_programacao_dinamica} segundos")
+                    f"- Tempo de execução (Programação Dinâmica): {tempo_execucao_programacao_dinamica} segundo(s)")
 
                 tempo_inicial_heuristica_gulosa = time.time()
+
                 solucao_gulosa, itens_heuristica_gulosa = heuristica_gulosa(
                     itens, capacidade_mochila)
+                
                 tempo_execucao_heuristica_gulosa = time.time() - tempo_inicial_heuristica_gulosa
                 tempo_total_heuristica_gulosa += tempo_execucao_heuristica_gulosa
 
-                print(f"Solução (Heurística Gulosa): {solucao_gulosa}")
+                print(f"- Solução (Heurística Gulosa): {solucao_gulosa}")
                 print(
-                    f"Tempo de execução (Heurística Gulosa): {tempo_execucao_heuristica_gulosa} segundos")
+                    f"- Tempo de execução (Heurística Gulosa): {tempo_execucao_heuristica_gulosa} segundo(s)")
+                
+                print(f"- Diferença entre as soluções: {solucao_programacao_dinamica - solucao_gulosa}")
+                print(f"- Diferença entre os tempos de execução: {tempo_execucao_programacao_dinamica - tempo_execucao_heuristica_gulosa} segundo(s)")
+                
+                diferenca_solucoes = solucao_programacao_dinamica - solucao_gulosa
+                diferenca_tempo_execucao = tempo_execucao_programacao_dinamica - tempo_execucao_heuristica_gulosa
 
                 writer.writerow({'instancia': instancia, 'numero_itens': numero_itens, 'capacidade_mochila': capacidade_mochila, 
-                                 'solucao_programacao_dinamica': solucao_programacao_dinamica, 'tempo_execucao_programacao_dinamica': tempo_execucao_programacao_dinamica, 
-                                 'solucao_heuristica_gulosa': solucao_gulosa, 'tempo_execucao_heuristica_gulosa': tempo_execucao_heuristica_gulosa, 
-                                 'itens_selecionados_programacao_dinamica': itens_programacao_dinamica, 'itens_selecionados_heuristica_gulosa': itens_heuristica_gulosa, 
+                                 'solucao_programacao_dinamica': solucao_programacao_dinamica, 'solucao_heuristica_gulosa': solucao_gulosa,
+                                 'diferenca_solucoes': diferenca_solucoes, 
+                                 'tempo_execucao_programacao_dinamica': tempo_execucao_programacao_dinamica, 
+                                 'tempo_execucao_heuristica_gulosa': tempo_execucao_heuristica_gulosa,
+                                 'diferenca_tempo_execucao': diferenca_tempo_execucao,
+                                 'itens_selecionados_programacao_dinamica': itens_programacao_dinamica, 
+                                 'itens_selecionados_heuristica_gulosa': itens_heuristica_gulosa, 
                                  'tempo_total_execucao': tempo_execucao_programacao_dinamica + tempo_execucao_heuristica_gulosa})
+        
         print('----------------------------------------')
         print(
-            f"Tempo total de execução (Programação Dinâmica): {tempo_total_programacao_dinamica} segundos")
+            f"Tempo total de execução (Programação Dinâmica): {tempo_total_programacao_dinamica} segundo(s)")
         print(
-            f"Tempo total de execução (Heurística Gulosa): {tempo_total_heuristica_gulosa} segundos")
+            f"Tempo total de execução (Heurística Gulosa): {tempo_total_heuristica_gulosa} segundo(s)")
         print(
-            f"Tempo total de execução: {time.time() - tempo_inicial_total} segundos")
+            f"Tempo total de execução: {tempo_total_programacao_dinamica + tempo_total_heuristica_gulosa} ({time.time() - tempo_inicial_total}) segundo(s) ")
 
         writer.writerow({'tempo_execucao_programacao_dinamica': tempo_total_programacao_dinamica,
-                        'tempo_execucao_heuristica_gulosa': tempo_total_heuristica_gulosa, 'tempo_total_execucao': time.time() - tempo_inicial_total})
-    # # ITENS DE TESTE
-    # itens = [
-    #     {'id': 1, 'peso': 10, 'valor': 60},
-    #     {'id': 2, 'peso': 20, 'valor': 100},
-    #     {'id': 3, 'peso': 30, 'valor': 120}
-    # ]
-    # numero_itens = len(itens)
-    # capacidade_mochila = 50
-
-    # print(f'Numero de itens: {numero_itens}')
-    # print(f'Capacidade da mochila: {capacidade_mochila}')
-
-    # print('----------------------------------------')
-    # solucao_programacao_dinamica, itens_programacao_dinamica = programacao_dinamica(itens, capacidade_mochila)
-    # print('Programação Dinâmica')
-    # print(f"Solução: {solucao_programacao_dinamica}")
-    # print(f"Itens selecionados: {itens_programacao_dinamica}")
-
-    # print('----------------------------------------')
-    # solucao_gulosa, itens_heuristica_gulosa = heuristica_gulosa(itens, capacidade_mochila)
-    # print('Heurística Gulosa')
-    # print(f"Solução: {solucao_gulosa}")
-    # print(f"Itens selecionados: {itens_heuristica_gulosa}")
-    # print('----------------------------------------')
+                        'tempo_execucao_heuristica_gulosa': tempo_total_heuristica_gulosa, 
+                        'diferenca_tempo_execucao': tempo_total_programacao_dinamica - tempo_total_heuristica_gulosa,
+                        'tempo_total_execucao': tempo_total_programacao_dinamica + tempo_total_heuristica_gulosa})
 
 
 if __name__ == "__main__":
