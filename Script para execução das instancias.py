@@ -1,8 +1,7 @@
-import os
-import re
-import time
-import csv
+# Trabalho de Projeto e Análise de Algoritmos
+# Aluno: João Guilherme dos Santos Moreira
 
+import os, re, time, csv
 
 def programacao_dinamica(itens, capacidade_mochila):
     quant_itens = len(itens)
